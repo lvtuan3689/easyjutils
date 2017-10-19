@@ -7,7 +7,7 @@ public class EasyStringTest {
 
 	public static void main(String[] args) {
 		String name = "Tuan Le";
-		EasyConsole.display(EasyString.subStr(name,-5));
+		EasyConsole.display(EasyString.subStr(name,'u','e'));
 	}
 
 }
