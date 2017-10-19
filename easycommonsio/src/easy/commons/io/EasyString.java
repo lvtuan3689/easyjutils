@@ -37,6 +37,7 @@ public class EasyString {
 	 * @param begin
 	 * @return
 	 */
+	@NotNull
 	public static String subStr(String needed, int begin) {
 		String vstr = str(needed, "");
 		if(Math.abs(begin)>=vstr.length())
@@ -52,10 +53,61 @@ public class EasyString {
 	 * @param begin
 	 * @return
 	 */
+	@NotNull
 	public static String subStr(String needed, int begin, int end) {
 		String vstr = str(needed, "");
-		if(begin>=vstr.length())
+		if(begin>=vstr.length() || end>=vstr.length())
 			return "";
-		return vstr.substring(begin);
+		if(begin<end)
+			return vstr.substring(begin,end);
+		return vstr.substring(begin) + vstr.substring(0,end);
+	}
+	
+	/**
+	 * Get a part of string from begin string
+	 * @param needed
+	 * @param begin
+	 * @return
+	 */
+	@NotNull
+	public static String subStr(String needed,String begin) {
+		String vstr = str(needed, "");
+		return subStr(vstr, vstr.indexOf(begin));
+	}
+	
+	/**
+	 * Get a part of string from begin string to end string
+	 * @param needed
+	 * @param begin
+	 * @return
+	 */
+	@NotNull
+	public static String subStr(String needed,String begin,String end) {
+		String vstr = str(needed, "");
+		return subStr(needed, vstr.indexOf(begin), vstr.indexOf(end));
+	}
+	
+	/**
+	 * Get a part of string from begin char
+	 * @param needed
+	 * @param begin
+	 * @return
+	 */
+	@NotNull
+	public static String subStr(String needed,char begin) {
+		String vstr = str(needed, "");
+		return subStr(vstr, vstr.indexOf(begin));
+	}
+	
+	/**
+	 * Get a part of string from begin char to end char
+	 * @param needed
+	 * @param begin
+	 * @return
+	 */
+	@NotNull
+	public static String subStr(String needed,char begin,char end) {
+		String vstr = str(needed, "");
+		return subStr(vstr, vstr.indexOf(begin), vstr.indexOf(end));
 	}
 }
