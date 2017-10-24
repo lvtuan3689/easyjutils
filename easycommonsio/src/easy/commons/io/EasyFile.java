@@ -2,16 +2,23 @@ package easy.commons.io;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,7 +26,15 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.PropertiesConfigurationLayout;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
@@ -590,5 +605,378 @@ public class EasyFile {
 			EasyConsole.display(e);
 		}
 		return res;
+	}
+
+	/**
+	 * Load single properties file
+	 * 
+	 * @param filePath
+	 * @param initVector
+	 *            16 byte long
+	 * @param key
+	 *            16 byte long
+	 * @return
+	 */
+	public static LinkedHashMap<String, String> loadPropertiesFile(String filePath, String initVector, String key) {
+		LinkedHashMap<String, String> configProperties = new LinkedHashMap<String, String>();
+		File propertiesFile = makeFile(filePath);
+		if (!EasyConstant.EXT_PROPERTIES_FILE.equalsIgnoreCase(getFileExtension(propertiesFile))) {
+			EasyConsole.display("File does not a properties file");
+			return configProperties;
+		}
+		if (propertiesFile == null) {
+			EasyConsole.display("File not found:  " + filePath);
+			return configProperties;
+		}
+		InputStream is = null;
+		Properties propFile = null;
+		Enumeration<?> keysEnum = null;
+		String name = "", value = "";
+		try {
+			EasyConsole.display("Reading configuration file: " + filePath);
+			is = new FileInputStream(propertiesFile);
+			if (is != null) {
+				propFile = new Properties();
+				propFile.load(is);
+				keysEnum = propFile.keys();
+				while (keysEnum.hasMoreElements()) {
+					name = (String) keysEnum.nextElement();
+					value = propFile.getProperty(name);
+					if (value != null) {
+						value = value.trim();
+						if (value.startsWith("!") && value.length() > 1) {
+							value = value.substring(1);
+							editPropertiesFile(propertiesFile,
+									"*" + name + "={AES}" + EasyString.getEncrypted(initVector, key, value));
+						} else if (value.startsWith("{AES}") && value.length() > 5) {
+							String encryptedText = value.substring(5);
+							value = EasyString.getDecrypted(initVector, key, encryptedText);
+						}
+						configProperties.put(name, value);
+					}
+				}
+			}
+		} catch (Exception e1) {
+			EasyConsole.display(e1);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				EasyConsole.display("Close input stream with error");
+			}
+		}
+		return configProperties;
+	}
+
+	/**
+	 * Load all properties file in directory
+	 * 
+	 * @param dirPath
+	 * @param initVector
+	 *            16 byte long
+	 * @param key
+	 *            16 byte long
+	 * @return
+	 */
+	public static LinkedHashMap<String, String> loadAllPropertiesFile(String dirPath, String initVector, String key) {
+		LinkedHashMap<String, String> configProperties = new LinkedHashMap<String, String>();
+		File propertiesFiles = makeFile(dirPath);
+		File[] allFiles = propertiesFiles.listFiles(new FileFilter() {
+
+			@Override
+			public boolean accept(File pathname) {
+				return EasyConstant.EXT_PROPERTIES_FILE.equalsIgnoreCase(getFileExtension(pathname));
+			}
+		});
+		InputStream is = null;
+		Properties propFile = null;
+		Enumeration<?> keysEnum = null;
+		String name = "", value = "";
+		try {
+			for (File propertiesFile : allFiles) {
+				EasyConsole.display("Reading configuration file: " + propertiesFile.getAbsolutePath());
+				is = new FileInputStream(propertiesFile);
+				if (is != null) {
+					propFile = new Properties();
+					propFile.load(is);
+					keysEnum = propFile.keys();
+					while (keysEnum.hasMoreElements()) {
+						name = (String) keysEnum.nextElement();
+						value = propFile.getProperty(name);
+						if (value != null) {
+							value = value.trim();
+							if (value.startsWith("!") && value.length() > 1) {
+								value = value.substring(1);
+								editPropertiesFile(propertiesFile,
+										"*" + name + "={AES}" + EasyString.getEncrypted(initVector, key, value));
+							} else if (value.startsWith("{AES}") && value.length() > 5) {
+								String encryptedText = value.substring(5);
+								value = EasyString.getDecrypted(initVector, key, encryptedText);
+							}
+							configProperties.put(name, value);
+						}
+					}
+					is.close();
+				}
+			}
+		} catch (Exception e1) {
+			EasyConsole.display(e1);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				EasyConsole.display("Close input stream with error");
+			}
+		}
+		return configProperties;
+	}
+
+	/**
+	 * Get list of file as string via SFTP
+	 * 
+	 * @param host
+	 * @param usr
+	 * @param passwd
+	 * @param port
+	 * @param srcFolder
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static String[] listFilesSFTP(String host, String usr, String passwd, int port, String srcFolder) {
+		JSch jsch = new JSch();
+		JSch.setConfig("StrictHostKeyChecking", "no");
+		Session session = null;
+		ChannelSftp cFTP = null;
+		Channel channel = null;
+		LinkedList<String> list = new LinkedList<String>();
+		try {
+			session = jsch.getSession(usr, host, port);
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.setPassword(passwd);
+			session.setTimeout(5000);
+			session.connect();
+
+			channel = session.openChannel(EasyConstant.SFTP);
+			channel.connect();
+			cFTP = (ChannelSftp) channel;
+			Vector<LsEntry> vFiles = cFTP.ls(srcFolder);
+			cFTP.disconnect();
+			session.disconnect();
+			Enumeration<LsEntry> vEnum = vFiles.elements();
+			while (vEnum.hasMoreElements()) {
+				String filename = vEnum.nextElement().getFilename();
+				if (!filename.equals("..") && !filename.equals(".") && filename.endsWith(".zip")) {
+					list.add(filename);
+				}
+			}
+		} catch (Exception e) {
+			EasyConsole.display(e);
+		} finally {
+			if (channel != null) {
+				channel.disconnect();
+			}
+			if (session != null) {
+				session.disconnect();
+			}
+			if (cFTP != null) {
+				cFTP.disconnect();
+			}
+		}
+		return list.toArray(new String[list.size()]);
+	}
+
+	/**
+	 * Get list of file as String via FTP
+	 * 
+	 * @param host
+	 * @param usr
+	 * @param passwd
+	 * @param port
+	 * @param srcFolder
+	 * @return
+	 */
+	public static String[] listFilesFTP(String host, String usr, String passwd, int port, String srcFolder) {
+		FTPClient ftpClient = new FTPClient();
+		ftpClient.setConnectTimeout(5000);
+		InetAddress inetAddress;
+		try {
+			inetAddress = Inet4Address.getByName(host);
+			ftpClient.enterLocalPassiveMode();
+			ftpClient.connect(inetAddress, port);
+			ftpClient.login(usr, passwd);
+			ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+			FTPFile[] ftpFiles = ftpClient.listFiles();
+			LinkedList<String> list = new LinkedList<String>();
+			for (FTPFile ftpFile : ftpFiles) {
+				list.add(ftpFile.getName());
+			}
+			return list.toArray(new String[list.size()]);
+		} catch (Exception e) {
+			EasyConsole.display(e);
+		}
+		return null;
+	}
+
+	/**
+	 * Download file via SFTP
+	 * 
+	 * @param host
+	 * @param usr
+	 * @param passwd
+	 * @param port
+	 * @param srcFolder
+	 * @param dstFolder
+	 * @param fileNames
+	 * @return
+	 */
+	@Nullable
+	public static synchronized File[] getFilesSFTP(String host, String usr, String passwd, int port, String srcFolder,
+			String dstFolder, String... fileNames) {
+		LinkedList<File> allFile = new LinkedList<File>();
+		File dst = new File(dstFolder);
+		if (!dst.exists() || !dst.isDirectory()) {
+			EasyConsole.display("Destination folder does not exists");
+			return null;
+		}
+		String dstFilePath = null;
+		String srcFilePath = null;
+		JSch jsch = new JSch();
+		JSch.setConfig("StrictHostKeyChecking", "no");
+		Session session = null;
+		ChannelSftp cFTP = null;
+		Channel channel = null;
+		try {
+			session = jsch.getSession(usr, host, port);
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.setPassword(passwd);
+			session.setTimeout(15000);
+			session.connect();
+			channel = session.openChannel(EasyConstant.SFTP);
+			channel.connect();
+			cFTP = (ChannelSftp) channel;
+			for (String fileName : fileNames) {
+				dstFilePath = dstFolder + File.separator + fileName;
+				srcFilePath = srcFolder + File.separator + fileName;
+				cFTP.get(srcFilePath, dstFilePath);
+				allFile.add(new File(dstFilePath));
+			}
+		} catch (Exception e) {
+			EasyConsole.display(e);
+		} finally {
+			if (channel != null) {
+				channel.disconnect();
+			}
+			if (session != null) {
+				session.disconnect();
+			}
+			if (cFTP != null) {
+				cFTP.disconnect();
+			}
+		}
+		return allFile.toArray(new File[allFile.size()]);
+	}
+
+	/**
+	 * Download file via FTP
+	 * 
+	 * @param host
+	 * @param usr
+	 * @param passwd
+	 * @param port
+	 * @param srcFolder
+	 * @param dstFolder
+	 * @param fileNames
+	 * @return
+	 */
+	@Nullable
+	public static synchronized File[] getFilesFTP(String host, String usr, String passwd, int port, String srcFolder,
+			String dstFolder, String... fileNames) {
+		LinkedList<File> allFile = new LinkedList<File>();
+		File dst = new File(dstFolder);
+		if (!dst.exists() || !dst.isDirectory()) {
+			EasyConsole.display("Destination folder does not exists");
+			return null;
+		}
+		String dstFilePath = null;
+		String srcFilePath = null;
+		FTPClient ftpClient = new FTPClient();
+		ftpClient.setConnectTimeout(5000);
+		InetAddress inetAddress;
+		try {
+			inetAddress = Inet4Address.getByName(host);
+			ftpClient.connect(inetAddress, port);
+			ftpClient.login(usr, passwd);
+			ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+			ftpClient.enterLocalPassiveMode();
+			for (String fileName : fileNames) {
+				dstFilePath = dstFolder + File.separator + fileName;
+				srcFilePath = srcFolder + File.separator + fileName;
+				File target = new File(dstFilePath);
+				try (FileOutputStream fileOutputStream = new FileOutputStream(target)) {
+					ftpClient.retrieveFile(srcFilePath, fileOutputStream);
+					allFile.add(target);
+				}
+			}
+		} catch (Exception e) {
+			EasyConsole.display(e);
+		} finally {
+			try {
+				ftpClient.disconnect();
+			} catch (IOException e) {
+				EasyConsole.display(e);
+			}
+		}
+		return allFile.toArray(new File[allFile.size()]);
+	}
+
+	/**
+	 * Upload file via SFTP
+	 * 
+	 * @param host
+	 * @param usr
+	 * @param passwd
+	 * @param port
+	 * @param srcFolder
+	 * @param dstFolder
+	 */
+	public static synchronized void putFilesViaSFTP(String host, String usr, String passwd, int port, String srcFolder,
+			String dstFolder) {
+		File src = new File(srcFolder);
+		if (!src.exists() || !src.isDirectory()) {
+			EasyConsole.display("Source folder does not exists");
+			return;
+		}
+		JSch jsch = new JSch();
+		JSch.setConfig("StrictHostKeyChecking", "no");
+		Session session = null;
+		ChannelSftp cFTP = null;
+		Channel channel = null;
+		try {
+			session = jsch.getSession(usr, host, port);
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.setPassword(passwd);
+			session.connect();
+			channel = session.openChannel(EasyConstant.SFTP);
+			channel.connect();
+			cFTP = (ChannelSftp) channel;
+			String[] fileNames = src.list();
+			if (fileNames != null) {
+				for (String fileName : fileNames) {
+					cFTP.put(srcFolder + File.separator + fileName, dstFolder + File.separator + fileName);
+				}
+			}
+		} catch (Exception e) {
+			EasyConsole.display(e);
+		} finally {
+			if (channel != null) {
+				channel.disconnect();
+			}
+			if (session != null) {
+				session.disconnect();
+			}
+			if (cFTP != null) {
+				cFTP.disconnect();
+			}
+		}
 	}
 }

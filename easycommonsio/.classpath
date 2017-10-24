@@ -11,5 +11,9 @@
 	<classpathentry kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1-javadoc.jar"/>
 	<classpathentry kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1-sources.jar"/>
 	<classpathentry kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/common/jsch-0.1.54.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-3.6-sources.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-3.6.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-examples-3.6.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
