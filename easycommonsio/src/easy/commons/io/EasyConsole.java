@@ -6,7 +6,7 @@ public class EasyConsole {
 	 * @param object
 	 */
 	public static void display(Object object) {
-		System.out.print(object);
+		System.out.println(object);
 	}
 	
 	/**
@@ -19,5 +19,22 @@ public class EasyConsole {
 		}else {
 			System.out.print(object);
 		}
+	}
+	
+	/**
+	 * Write exception to log file or screen
+	 * @param e
+	 */
+	public static void display(Exception e) {
+		e.printStackTrace();
+	}
+	
+	/**
+	 * Write exception to log file or screen
+	 * @param e
+	 */
+	public static void display(String message,Exception e) {
+		display(message);
+		e.printStackTrace();
 	}
 }
