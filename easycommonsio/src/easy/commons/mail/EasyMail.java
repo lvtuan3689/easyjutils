@@ -124,7 +124,7 @@ public class EasyMail {
 					BodyPart attachFile = new MimeBodyPart();
 					source = new FileDataSource(attach);
 					attachFile.setDataHandler(new DataHandler(source));
-					attachFile.setFileName(attach);
+					attachFile.setFileName(f.getName());
 					multipart.addBodyPart(attachFile);
 				}
 			}

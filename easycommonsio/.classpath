@@ -8,14 +8,14 @@
 	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-lang/3.6/commons-lang3-3.6-javadoc.jar"/>
 	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-lang/3.6/commons-lang3-3.6-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-lang/3.6/commons-lang3-3.6.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1-javadoc.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1-sources.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/common/jsch-0.1.54.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-3.6-sources.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-3.6.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-examples-3.6.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/oracle/mail/1.4.7/mail.jar" sourcepath="C:/Users/tuan.le/.m2/repository/com/sun/mail/javax.mail/1.4.7/javax.mail-1.4.7-sources.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/common/activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1-javadoc.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-configuration/2.1.1/commons-configuration2-2.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/common/jsch-0.1.54.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-3.6-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-3.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-examples-3.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/oracle/mail/1.4.7/mail.jar" sourcepath="C:/Users/tuan.le/.m2/repository/com/sun/mail/javax.mail/1.4.7/javax.mail-1.4.7-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/thirdparty/common/activation.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
