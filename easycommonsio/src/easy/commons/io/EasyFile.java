@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -978,5 +979,27 @@ public class EasyFile {
 				cFTP.disconnect();
 			}
 		}
+	}
+
+	/**
+	 * Get total files size
+	 * 
+	 * @param files
+	 * @return
+	 */
+	public static long getFilesSize(String... files) {
+		long total = 0L;
+		File f = null;
+		try {
+			for (String file : files) {
+				f = makeFile(file);
+				if (f != null) {
+					total += Files.size(f.toPath());
+				}
+			}
+		} catch (IOException e) {
+			EasyConsole.display(e);
+		}
+		return total;
 	}
 }

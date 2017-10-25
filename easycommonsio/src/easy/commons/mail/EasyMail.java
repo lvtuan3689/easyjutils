@@ -1,5 +1,6 @@
 package easy.commons.mail;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,9 +20,13 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import easy.commons.io.EasyConsole;
+import easy.commons.io.EasyFile;
 import easy.commons.io.EasyString;
 
 public class EasyMail {
+	public static long MAX_TOTAL_FILE_SIZE = 1048576L;// 25 MB
+	public static int MAX_FILE_ATTACHES = 10;
+	public static boolean IGNORE_FILE_NOT_FOUND_ERROR = true;
 
 	/**
 	 * Send an email
@@ -37,20 +42,29 @@ public class EasyMail {
 	 * @param bccs
 	 * @param attaches
 	 */
-	public static void sendMail(String subject, String body, String from, String host, String port, String username,
+	public static boolean sendMail(String subject, String body, String from, String host, int port, String username,
 			String password, boolean auth, boolean tlsEnable, List<String> tos, List<String> ccs, List<String> bccs,
 			List<String> attaches) {
+		String vsubject = EasyString.str(subject, "");
+		String vbody = EasyString.str(body, "");
+		String vhost = EasyString.str(host, "");
+		String vusername = EasyString.str(username, "");
+		String vpassword = EasyString.str(password, "");
+		String vport = EasyString.str(port, "");
+		String vauth = EasyString.str(auth, "false");
+		String vtlsEnable = EasyString.str(tlsEnable, "false");
 		Properties properties = System.getProperties();
-		properties.setProperty("mail.smtp.host", EasyString.str(host, ""));
-		properties.setProperty("mail.smtp.user", EasyString.str(username, ""));
-		properties.setProperty("mail.smtp.password", EasyString.str(password, ""));
-		properties.setProperty("mail.smtp.auth", String.valueOf(auth));
-		properties.setProperty("mail.smtp.starttls.enable", String.valueOf(tlsEnable));
-		properties.setProperty("mail.smtp.port", port);
+		properties.setProperty("mail.smtp.host", vhost);
+		properties.setProperty("mail.smtp.user", vusername);
+		properties.setProperty("mail.smtp.password", vpassword);
+		properties.setProperty("mail.smtp.auth", vauth);
+		properties.setProperty("mail.smtp.starttls.enable", String.valueOf(vtlsEnable));
+		properties.setProperty("mail.smtp.ssl.trust", vhost);
+		properties.setProperty("mail.smtp.port", vport);
 		Session session = Session.getDefaultInstance(properties, new Authenticator() {
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(EasyString.str(username, ""), EasyString.str(password, ""));
+				return new PasswordAuthentication(EasyString.str(vusername, ""), EasyString.str(vpassword, ""));
 			}
 		});
 		try {
@@ -75,27 +89,47 @@ public class EasyMail {
 				}
 
 			// Set Subject: header field
-			message.setSubject(subject);
+			message.setSubject(vsubject);
 
 			// Now set the actual message
+			Multipart multipart = new MimeMultipart();
 
 			BodyPart messageBodyPart = new MimeBodyPart();
-			messageBodyPart.setContent(body, "text/html");
-			Multipart multipart = new MimeMultipart();
+			messageBodyPart.setContent(vbody, "text/html");
 			multipart.addBodyPart(messageBodyPart);
 			if (attaches != null) {
+				if (attaches.size() > MAX_FILE_ATTACHES) {
+					EasyConsole.display("Max file is: " + EasyString.str(MAX_FILE_ATTACHES, "0"));
+					return false;
+				}
+				long totalSize = EasyFile.getFilesSize(attaches.toArray(new String[attaches.size()]));
+				if (totalSize > MAX_TOTAL_FILE_SIZE) {
+					EasyConsole.display("Max total file size is: " + EasyString.str(MAX_TOTAL_FILE_SIZE, "0"));
+					return false;
+				}
+				DataSource source = null;
 				for (String attach : attaches) {
-					DataSource source = new FileDataSource(attach);
-					messageBodyPart.setDataHandler(new DataHandler(source));
-					messageBodyPart.setFileName(attach);
-					multipart.addBodyPart(messageBodyPart);
+					File f = EasyFile.makeFile(attach);
+					if (f == null) {
+						EasyConsole.display("File not found: " + attach);
+						if (!IGNORE_FILE_NOT_FOUND_ERROR) {
+							return false;
+						}
+					}
+					BodyPart attachFile = new MimeBodyPart();
+					source = new FileDataSource(attach);
+					attachFile.setDataHandler(new DataHandler(source));
+					attachFile.setFileName(attach);
+					multipart.addBodyPart(attachFile);
 				}
 			}
 			message.setContent(multipart);
 			// Send message
 			Transport.send(message);
+			return true;
 		} catch (Exception e) {
 			EasyConsole.display(e);
 		}
+		return false;
 	}
 }

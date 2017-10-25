@@ -15,7 +15,7 @@
 	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-3.6-sources.jar"/>
 	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-3.6.jar"/>
 	<classpathentry kind="lib" path="/thirdparty/apache/commons-net/3.6/commons-net-examples-3.6.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/oracle/mail/1.4.7/mail.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/oracle/mail/1.4.7/mail.jar" sourcepath="C:/Users/tuan.le/.m2/repository/com/sun/mail/javax.mail/1.4.7/javax.mail-1.4.7-sources.jar"/>
 	<classpathentry kind="lib" path="/thirdparty/common/activation.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
