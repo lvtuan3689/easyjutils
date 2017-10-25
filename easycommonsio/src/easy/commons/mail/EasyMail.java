@@ -24,9 +24,9 @@ import easy.commons.io.EasyFile;
 import easy.commons.io.EasyString;
 
 public class EasyMail {
-	public static long MAX_TOTAL_FILE_SIZE = 1048576L;// 25 MB
+	public static long MAX_TOTAL_FILE_SIZE = 26214400L;// 25 MB
 	public static int MAX_FILE_ATTACHES = 10;
-	public static boolean IGNORE_FILE_NOT_FOUND_ERROR = true;
+	public static boolean IGNORE_FILE_NOT_FOUND_ERROR = false;
 
 	/**
 	 * Send an email
@@ -45,6 +45,7 @@ public class EasyMail {
 	public static boolean sendMail(String subject, String body, String from, String host, int port, String username,
 			String password, boolean auth, boolean tlsEnable, List<String> tos, List<String> ccs, List<String> bccs,
 			List<String> attaches) {
+		String vfrom = EasyString.str(from, "");
 		String vsubject = EasyString.str(subject, "");
 		String vbody = EasyString.str(body, "");
 		String vhost = EasyString.str(host, "");
@@ -53,6 +54,7 @@ public class EasyMail {
 		String vport = EasyString.str(port, "");
 		String vauth = EasyString.str(auth, "false");
 		String vtlsEnable = EasyString.str(tlsEnable, "false");
+		boolean send = true;
 		Properties properties = System.getProperties();
 		properties.setProperty("mail.smtp.host", vhost);
 		properties.setProperty("mail.smtp.user", vusername);
@@ -72,7 +74,7 @@ public class EasyMail {
 			MimeMessage message = new MimeMessage(session);
 
 			// Set From: header field of the header.
-			message.setFrom(new InternetAddress(from));
+			message.setFrom(new InternetAddress(vfrom));
 
 			// Set To: header field of the header.
 			if (tos != null)
@@ -99,12 +101,14 @@ public class EasyMail {
 			multipart.addBodyPart(messageBodyPart);
 			if (attaches != null) {
 				if (attaches.size() > MAX_FILE_ATTACHES) {
-					EasyConsole.display("Max file is: " + EasyString.str(MAX_FILE_ATTACHES, "0"));
+					EasyConsole.display("Max send files is " + EasyString.str(MAX_FILE_ATTACHES, "0"));
 					return false;
 				}
 				long totalSize = EasyFile.getFilesSize(attaches.toArray(new String[attaches.size()]));
 				if (totalSize > MAX_TOTAL_FILE_SIZE) {
-					EasyConsole.display("Max total file size is: " + EasyString.str(MAX_TOTAL_FILE_SIZE, "0"));
+					EasyConsole.display("Max total file size is " + EasyString.str(MAX_TOTAL_FILE_SIZE, "0") + " ("
+							+ (MAX_TOTAL_FILE_SIZE / 1048576) + " MB), your total file size: " + totalSize + "("
+							+ (totalSize / 1048576) + " MB)");
 					return false;
 				}
 				DataSource source = null;
@@ -113,7 +117,8 @@ public class EasyMail {
 					if (f == null) {
 						EasyConsole.display("File not found: " + attach);
 						if (!IGNORE_FILE_NOT_FOUND_ERROR) {
-							return false;
+							send = false;
+							continue;
 						}
 					}
 					BodyPart attachFile = new MimeBodyPart();
@@ -124,9 +129,11 @@ public class EasyMail {
 				}
 			}
 			message.setContent(multipart);
-			// Send message
-			Transport.send(message);
-			return true;
+			if (send) {
+				Transport.send(message);
+				return true;
+			}
+			return false;
 		} catch (Exception e) {
 			EasyConsole.display(e);
 		}

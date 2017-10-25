@@ -20,10 +20,11 @@ public class EasyMailTest {
 				}, null, new ArrayList<String>() {
 					{
 						add("E:\\Projects\\Big5\\AutoDeploymentManager\\toolkit\\jazn-data.xml");
-						add("F:\\COConvertToXAdmin\\documents\\BTM.xlsx");
+						add("E:\\Projects\\Big5\\AutoDeploymentManager\\toolkit\\jazn-datahgj.xml");
 					}
 				}))
-			EasyConsole.display("Ok");
+			EasyConsole.display("Success");
+		else
+			EasyConsole.display("Failed");
 	}
-
 }
