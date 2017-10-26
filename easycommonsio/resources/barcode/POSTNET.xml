@@ -1,0 +1,18 @@
+<barcode>
+  <postnet>
+      <height>{length:15mm}</height>
+      <module-width>{length:0.02in}</module-width>
+      <quiet-zone enabled="{boolean:true}">{length:10mw}</quiet-zone>
+      <checksum>{checksum-mode:auto=ignore}</checksum>
+      <interchar-gap-width>{length:0.026in}</interchar-gap-width>
+      <tall-bar-height>{length:0.125in}</tall-bar-height>
+      <short-bar-height>{length:0.050in}</short-bar-height>
+      <baseline-alignment>{baseline-alignment:bottom}</baseline-alignment>
+      <human-readable>
+        <placement>{human-readable-placement:none}</placement>
+        <font-name>{font-name:Helvetica}</font-name>
+        <font-size>{length:8pt}</font-size>
+        <display-checksum>{boolean:false}</display-checksum>
+      </human-readable>
+  </postnet>
+</barcode>

@@ -1,0 +1,15 @@
+<barcode>
+  <pdf417>
+      <module-width>{length:0.352777mm}</module-width> <!-- 1 pixel at 72dpi -->
+      <row-height>{length:3mw}</row-height>
+      <columns>{number:2}</columns>
+      <min-columns>{number:2}</min-columns>
+      <max-columns>{number:2}</max-columns>
+      <min-rows>{number:3}</min-rows>
+      <max-rows>{number:90}</max-rows>
+      <ec-level>{number:0}</ec-level>
+      <quiet-zone enabled="{boolean:true}">{length:2mw}</quiet-zone>
+      <vertical-quiet-zone>{length:default is same as quiet-zone}</vertical-quiet-zone>
+      <width-to-height-ratio>{number:3.0}</width-to-height-ratio>
+  </pdf417>
+</barcode>

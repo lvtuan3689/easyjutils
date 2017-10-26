@@ -1,0 +1,13 @@
+<barcode>
+  <upc-a>
+      <height>{length:15mm}</height>
+      <module-width>{length:0.33mm}</module-width>
+      <quiet-zone enabled="{boolean:true}">{length:10mw}</quiet-zone>
+      <checksum>{checksum-mode:auto=add|check}</checksum>
+      <human-readable>
+        <placement>{human-readable-placement:bottom}</placement>
+        <font-name>{font-name:Helvetica}</font-name>
+        <font-size>{length:8pt}</font-size>
+      </human-readable>
+  </upc-a>
+</barcode>

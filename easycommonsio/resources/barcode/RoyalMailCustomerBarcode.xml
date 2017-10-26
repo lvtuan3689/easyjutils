@@ -1,0 +1,10 @@
+<barcode>
+  <royal-mail-cbc>
+      <module-width>{length:0.53mm}</module-width>
+      <track-height>{length:1.25mm}</track-height>
+      <ascender-height>{length:1.25mm}</ascender-height>
+      <interchar-gap-width>{length:1mw}</interchar-gap-width>
+      <quiet-zone enabled="{boolean:true}">{length:10mw}</quiet-zone>
+      <checksum>{checksum-mode:auto=add}</checksum>
+  </royal-mail-cbc>
+</barcode>

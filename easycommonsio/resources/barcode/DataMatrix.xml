@@ -1,0 +1,9 @@
+<barcode>
+  <datamatrix>
+      <module-width>{length:0.352777mm}</module-width> <!-- 1 pixel at 72dpi -->
+      <quiet-zone enabled="{boolean:true}">{length:1mw}</quiet-zone>
+      <shape>{shape:force-none}</shape>
+      <min-symbol-size>{dimension}</min-symbol-size>
+      <max-symbol-size>{dimension}</max-symbol-size>
+  </datamatrix>
+</barcode>

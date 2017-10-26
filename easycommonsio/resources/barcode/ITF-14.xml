@@ -1,0 +1,17 @@
+<barcode>
+  <itf-14>
+      <height>{length:32mm}</height>
+      <module-width>{length:1.106mm}</module-width>
+      <wide-factor>{number:2.5}</wide-factor>
+      <quiet-zone enabled="{boolean:true}">{length:10mw}</quiet-zone>
+      <checksum>{checksum-mode:auto}</checksum>
+      <bearer-bar-width>{length:4.8mm}</bearer-bar-width>
+      <bearer-box>{boolean:true}</bearer-box>
+      <human-readable>
+        <placement>{human-readable-placement:bottom}</placement>
+        <font-name>{font-name:Helvetica}</font-name>
+        <font-size>{length:8pt}</font-size>
+        <display-checksum>{boolean:true}</display-checksum>
+      </human-readable>
+  </itf-14>
+</barcode>

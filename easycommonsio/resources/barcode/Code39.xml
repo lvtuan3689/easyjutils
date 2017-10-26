@@ -1,0 +1,18 @@
+<barcode>
+  <code39>
+      <height>{length:15mm}</height>
+      <module-width>{length:0.19mm}</module-width>
+      <wide-factor>{number:2.5}</wide-factor>
+      <interchar-gap-width>{length:1mw}</interchar-gap-width>
+      <quiet-zone enabled="{boolean:true}">{length:10mw}</quiet-zone>
+      <checksum>{checksum-mode:auto=ignore}</checksum>
+      <extended-charset>{boolean:false}</extended-charset>
+      <human-readable>
+        <placement>{human-readable-placement:bottom}</placement>
+        <font-name>{font-name:Helvetica}</font-name>
+        <font-size>{length:8pt}</font-size>
+        <display-start-stop>{boolean:false}</display-start-stop>
+        <display-checksum>{boolean:false}</display-checksum>
+      </human-readable>
+  </code39>
+</barcode>

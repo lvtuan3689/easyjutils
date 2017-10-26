@@ -1,0 +1,15 @@
+<barcode>
+    <usps4cb>
+        <module-width>{length:0.020in}</module-width>
+        <track-height>{length:0.050in}</track-height>
+        <ascender-height>{length:0.050in}</ascender-height>
+        <interchar-gap-width>{length:0.025in}</interchar-gap-width>
+        <quiet-zone enabled="{boolean:true}">{length:0.125in}</quiet-zone>
+        <vertical-quiet-zone>{length:0.028in}</vertical-quiet-zone>
+        <human-readable>
+            <placement>{human-readable-placement:none}</placement>
+            <font-name>{font-name:Helvetica}</font-name>
+            <font-size>{length:8pt}</font-size>
+        </human-readable>
+    </usps4cb>
+</barcode>
