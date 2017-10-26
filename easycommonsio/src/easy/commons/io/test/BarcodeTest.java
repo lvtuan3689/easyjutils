@@ -1,9 +1,9 @@
 package easy.commons.io.test;
 
 import java.awt.BorderLayout;
-import java.awt.Canvas;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
+import java.awt.Panel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -43,16 +43,19 @@ public class BarcodeTest {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		Canvas canvas = new Canvas();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().add(canvas, BorderLayout.CENTER);
+
+		Panel panel = new Panel();
+		frame.getContentPane().add(panel, BorderLayout.CENTER);
 
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowActivated(WindowEvent e) {
-				EasyBarcode.getInstance().buildFromXML("F:\\b25.xml", "Tuan Le", EasyBarcode.OutputType.AWT,
-						"F:\\barcode.svg", (Graphics2D) canvas.getGraphics());
+				EasyBarcode.getInstance().buildFromXML(
+						"E:\\Projects\\OpenSource\\easyjutils\\easycommonsio\\resources\\barcode\\Codabar.xml",
+						"12312312312414", EasyBarcode.OutputType.AWT, "F:\\barcode.svg",
+						(Graphics2D) panel.getGraphics());
 			}
 		});
 	}
