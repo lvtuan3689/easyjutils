@@ -15,6 +15,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,9 +24,14 @@ import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.PropertiesConfigurationLayout;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -40,6 +46,9 @@ import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
 public class EasyFile {
+	public static final long MAX_FILE_SIZE = 25600;
+	public static final long MAX_MEM_SIZE = 4096;
+
 	/**
 	 * Create new File
 	 * 
@@ -1001,5 +1010,58 @@ public class EasyFile {
 			EasyConsole.display(e);
 		}
 		return total;
+	}
+
+	/**
+	 * Upload a files to Servlet server
+	 * 
+	 * @param uploadPath
+	 * @param request
+	 * @return
+	 */
+	public static boolean uploadTo(String uploadPath, HttpServletRequest request) {
+		File uploadFolder = EasyFile.makeFile(uploadPath, true);
+		if (uploadFolder == null) {
+			EasyConsole.display("Upload folder not found");
+			return false;
+		}
+		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+		if (!isMultipart) {
+			EasyConsole.display("No file uploaded");
+			return false;
+		}
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		factory.setSizeThreshold((int) MAX_MEM_SIZE);
+		factory.setRepository(uploadFolder);
+		ServletFileUpload upload = new ServletFileUpload(factory);
+		upload.setSizeMax((int) MAX_FILE_SIZE);
+		try {
+			List fileItems = upload.parseRequest(request);
+			Iterator i = fileItems.iterator();
+			String fieldName = "", fileName = "", contentType = "";
+			boolean isInMemory = false;
+			long sizeInBytes = 0L;
+			File file = null;
+			while (i.hasNext()) {
+				FileItem fi = (FileItem) i.next();
+				if (!fi.isFormField()) {
+					fieldName = fi.getFieldName();
+					fileName = fi.getName();
+					contentType = fi.getContentType();
+					isInMemory = fi.isInMemory();
+					sizeInBytes = fi.getSize();
+					if (fileName.lastIndexOf("\\") >= 0) {
+						file = new File(uploadPath + fileName.substring(fileName.lastIndexOf("\\")));
+					} else {
+						file = new File(uploadPath + fileName.substring(fileName.lastIndexOf("\\") + 1));
+					}
+					fi.write(file);
+					EasyConsole.display("Uploaded Filename: " + fileName);
+				}
+			}
+		} catch (Exception ex) {
+			EasyConsole.display(ex);
+		}
+		return true;
 	}
 }
